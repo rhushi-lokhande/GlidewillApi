@@ -27,5 +27,18 @@ namespace GlidewillApi.Controllers
             return this._dbContext.User.Select(x=> x).Where(x=>x.IsActive).ToList();
 
         }
+
+        [HttpPost(Name = "AddUser")]
+        public async Task<ActionResult<User>> addUser(User user)
+        {
+            this._dbContext.User.Add(user);
+
+            await this._dbContext.SaveChangesAsync();
+
+           return await this._dbContext.User.FindAsync(user.id);
+
+        }
+
+
     }
 }
