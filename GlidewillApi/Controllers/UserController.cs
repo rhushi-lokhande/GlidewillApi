@@ -30,11 +30,16 @@ namespace GlidewillApi.Controllers
         [HttpPost(Name = "AddUser")]
         public async Task<ActionResult<User>> addUser(User user)
         {
-            this._dbContext.User.Add(user);
+            var newUser = new User();
+            newUser.IsActive = true;
+            newUser.FirstName = user.FirstName;
+            newUser.LastName = user.LastName;
+            newUser.created = DateTime.Now;
+            this._dbContext.User.Add(newUser);
 
             await this._dbContext.SaveChangesAsync();
 
-            return await this._dbContext.User.FindAsync(user.id);
+            return await this._dbContext.User.FindAsync(newUser.id);
 
         }
 
@@ -45,7 +50,13 @@ namespace GlidewillApi.Controllers
             {
                 return BadRequest();
             }
-            this._dbContext.Entry(user).State = EntityState.Modified;
+
+            var newUser = new User();
+            newUser.id = user.id;
+            newUser.FirstName = user.FirstName;
+            newUser.LastName = user.LastName;
+            newUser.IsActive = true;
+            this._dbContext.Entry(newUser).State = EntityState.Modified;
 
             try
             {
@@ -62,8 +73,17 @@ namespace GlidewillApi.Controllers
         {
             var user = await this._dbContext.User.FindAsync(id);
             user.IsActive = false;
+            this._dbContext.Entry(user).State = EntityState.Modified;
 
-            return await this.DeleteUser(id, user);
+            try
+            {
+                await this._dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
+            return NoContent();
         }
     }
 }
