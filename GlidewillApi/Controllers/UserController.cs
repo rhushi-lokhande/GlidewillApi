@@ -34,7 +34,7 @@ namespace GlidewillApi.Controllers
             newUser.IsActive = true;
             newUser.FirstName = user.FirstName;
             newUser.LastName = user.LastName;
-            newUser.created = DateTime.Now;
+            newUser.created = DateTime.Now.Date;
             this._dbContext.User.Add(newUser);
 
             await this._dbContext.SaveChangesAsync();
