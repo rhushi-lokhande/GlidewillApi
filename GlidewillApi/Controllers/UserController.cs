@@ -44,9 +44,9 @@ namespace GlidewillApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<User>> DeleteUser(int id,User user)
+        public async Task<ActionResult<User>> DeleteUser(int id, User user)
         {
-            if(id != user.id)
+            if (id != user.id)
             {
                 return BadRequest();
             }
@@ -56,23 +56,19 @@ namespace GlidewillApi.Controllers
             newUser.FirstName = user.FirstName;
             newUser.LastName = user.LastName;
             newUser.IsActive = true;
-            this._dbContext.Entry(newUser).State = EntityState.Modified;
-
-            try
-            {
-                await this._dbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                throw;
-            }
-            return NoContent();
+           
+            return await this.updateUser(newUser);
         }
         [HttpDelete("{id}")]
         public async Task<ActionResult<User>> DeleteUser(int id)
         {
             var user = await this._dbContext.User.FindAsync(id);
             user.IsActive = false;
+            return await this.updateUser(user);
+        }
+
+        private async Task<NoContentResult> updateUser(User user)
+        {
             this._dbContext.Entry(user).State = EntityState.Modified;
 
             try
